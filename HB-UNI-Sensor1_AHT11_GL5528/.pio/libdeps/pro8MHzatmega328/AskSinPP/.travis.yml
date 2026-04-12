@@ -1,0 +1,213 @@
+language: c++
+env:
+  global:
+    - IDE_VERSION=1.8.13
+    - BOARDMAPLE="stm32duino:STM32F1:mapleMini:bootloader_version=original,opt=osstd"
+    - BOARDSTM="stm32duino:STM32F1:genericSTM32F103C:device_variant=STM32F103C8,opt=osstd"
+    - BOARD644P="MightyCore:avr:644:pinout=bobuino,variant=modelP,LTO=Os,clock=8MHz_internal"
+    - BOARD1284P="MightyCore:avr:1284:pinout=standard,variant=modelP,LTO=Os,clock=8MHz_internal"
+    - BOARD328P="arduino:avr:pro:cpu=8MHzatmega328"
+    - BOARD168P="arduino:avr:pro:cpu=8MHzatmega168"
+    - BOARD=$BOARD328P
+before_install:
+  - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
+  - tar xf arduino-$IDE_VERSION-linux64.tar.xz
+  - mv arduino-$IDE_VERSION $HOME/arduino-ide
+  - export PATH=$PATH:$HOME/arduino-ide
+# Arduino IDE adds a lot of noise caused by network traffic, trying to firewall it off
+  - sudo iptables -P INPUT DROP
+  - sudo iptables -P FORWARD DROP
+  - sudo iptables -P OUTPUT ACCEPT
+  - sudo iptables -A INPUT -i lo -j ACCEPT
+  - sudo iptables -A OUTPUT -o lo -j ACCEPT
+  - sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+#  - if [[ "$BOARD" =~ "arduino:samd:" ]]; then
+#      arduino --install-boards arduino:samd;
+#    fi
+#  - buildSketch() { arduino --verify --board $BOARD $SKETCHPATH/$1/$1.ino 2>&1 | tee /tmp/$1.log; cat /tmp/$1.log; }
+  - buildSketch() { arduino --verify --board $BOARD $SKETCHPATH/$1/$1.ino; }
+  - buildSketchV() { arduino -v --verify --board $BOARD $SKETCHPATH/$1/$1.ino; }
+install:
+  - mkdir -p $HOME/Arduino/libraries
+  - ln -s $PWD $HOME/Arduino/libraries/.
+# install/fetch libraries
+  - arduino --install-library "OneWire"
+  - git clone https://github.com/GreyGnome/EnableInterrupt $HOME/arduino-ide/libraries/EnableInterrupt
+  - git clone https://github.com/rocketscream/Low-Power.git $HOME/arduino-ide/libraries/Low-Power
+  - git clone https://github.com/adafruit/Adafruit_Sensor $HOME/arduino-ide/libraries/Adafruit_Sensor
+  - git clone https://github.com/adafruit/DHT-sensor-library $HOME/arduino-ide/libraries/DHT-sensor-library
+  - git clone https://github.com/spease/Sensirion.git $HOME/arduino-ide/libraries/Sensirion
+  - git clone https://github.com/adafruit/TSL2561-Arduino-Library $HOME/arduino-ide/libraries/TSL2561-Arduino-Library
+  - git clone https://github.com/adafruit/Adafruit-BMP085-Library $HOME/arduino-ide/libraries/Adafruit-BMP085-Library
+  - git clone https://github.com/finitespace/BME280.git $HOME/arduino-ide/libraries/BME280
+  - git clone https://github.com/claws/BH1750 $HOME/arduino-ide/libraries/BH1750
+  - git clone https://github.com/xoseperez/hlw8012.git $HOME/arduino-ide/libraries/hlw8012
+  - git clone https://github.com/bogde/HX711.git $HOME/arduino-ide/libraries/HX711
+  - git clone https://github.com/ZinggJM/GxEPD.git $HOME/arduino-ide/libraries/GxEPD
+  - git clone https://github.com/ZinggJM/GxEPD2.git $HOME/arduino-ide/libraries/GxEPD2
+  - git clone https://github.com/adafruit/Adafruit-GFX-Library.git $HOME/arduino-ide/libraries/Adafruit-GFX-Library
+  - git clone https://github.com/adafruit/Adafruit_BusIO.git $HOME/arduino-ide/libraries/Adafruit_BusIO
+  - git clone https://github.com/adafruit/Adafruit_SHT31.git $HOME/arduino-ide/libraries/Adafruit_SHT31
+  - git clone https://github.com/olikraus/U8g2_for_Adafruit_GFX.git $HOME/arduino-ide/libraries/U8g2_for_Adafruit_GFX
+  - git clone https://github.com/FastLED/FastLED.git $HOME/arduino-ide/libraries/FastLED
+  - git clone https://github.com/PaulStoffregen/SoftwareSerial.git $HOME/arduino-ide/libraries/SoftwareSerial
+  - git clone https://github.com/DFRobot/DFRobotDFPlayerMini.git $HOME/arduino-ide/libraries/DFRobotDFPlayerMini
+  - git clone https://github.com/miguelbalboa/rfid.git $HOME/arduino-ide/libraries/MFRC522
+# Sketches from Jerome to test
+  - git clone https://github.com/jp112sdl/Beispiel_AskSinPP.git $HOME/Beispiel_AskSinPP
+  - git clone https://github.com/jp112sdl/HB-UNI-Sen-LEV-US.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-LEV-US
+  - git clone https://github.com/jp112sdl/HB-UNI-Sen-DIST-US.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-DIST-US
+  - git clone https://github.com/jp112sdl/HB-UNI-Sen-CAP-MOIST.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-CAP-MOIST
+  - git clone https://github.com/jp112sdl/HB-UNI-SenAct-4-4.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-SenAct-4-4
+  - git clone https://github.com/jp112sdl/HB-UNI-DMX-MASTER.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-DMX-MASTER
+  - git clone https://github.com/jp112sdl/HB-UNI-Sen-PRESS.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-PRESS
+  - git clone https://github.com/jp112sdl/HB-UNI-Sen-WEIGHT.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-WEIGHT
+  - git clone https://github.com/jp112sdl/HB-Dis-EP-42BW.git $HOME/Beispiel_AskSinPP/examples/HB-Dis-EP-42BW
+  - git clone https://github.com/jp112sdl/HB-OU-MP3-LED.git $HOME/Beispiel_AskSinPP/examples/HB-OU-MP3-LED
+  - git clone https://github.com/jp112sdl/HB-RC-12-EP.git  $HOME/Beispiel_AskSinPP/examples/HB-RC-12-EP
+  - git clone https://github.com/jp112sdl/HB-RC-4-Dis-TH.git  $HOME/Beispiel_AskSinPP/examples/HB-RC-4-Dis-TH
+  - git clone https://github.com/jp112sdl/HB-OU-MOT-SERVO.git  $HOME/Beispiel_AskSinPP/examples/HB-OU-MOT-SERVO
+  - git clone https://github.com/jp112sdl/HB-UNI-Sen-RFID-RC.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-RFID-RC
+  - git clone https://github.com/jp112sdl/HB-UNI-Sen-TEMP-MAX6675.git $HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-TEMP-MAX6675
+  - git clone https://github.com/jp112sdl/HM-SEC-RHS-ATmega168.git $HOME/Beispiel_AskSinPP/examples/HM-SEC-RHS-ATmega168
+# Sketches from TomMajor
+  - git clone https://github.com/TomMajor/SmartHome.git $HOME/SmartHome
+# setup arduino IDE
+  - arduino --pref "update.check=false" --save-prefs
+  - arduino --pref "boardsmanager.additional.urls=http://dan.drown.org/stm32duino/package_STM32duino_index.json,https://mcudude.github.io/MightyCore/package_MCUdude_MightyCore_index.json" --save-prefs
+  - arduino --install-boards stm32duino:STM32F1:2020.6.20
+#  - arduino --install-boards stm32duino:STM32F1:2019.3.31
+  - arduino --install-boards MightyCore:avr:2.0.1
+  - echo "compiler.cpp.extra_flags=-DUSE_AES -DHM_DEF_KEY=0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10 -DHM_DEF_KEY_INDEX=0" >$HOME/arduino-ide/hardware/arduino/avr/platform.local.txt
+script:
+  - export BOARD=$BOARDMAPLE
+  - export SKETCHPATH=$PWD/examples/stm32
+  - buildSketch HB-DoorBell
+  - buildSketch HM-LC-SWX-SM
+  - export BOARD=$BOARDSTM
+  - buildSketch HB-LC-Dim5PWM-CV
+  - buildSketch HM-DW-WM
+  - buildSketch HM-LC-DW-WM
+  - buildSketch HM-LC-Dim1PWM-CV
+  - export BOARD=$BOARD328P
+  - export SKETCHPATH=$PWD/examples
+  - buildSketch FreqTest
+  - buildSketch HM-ES-TX-WM
+  - buildSketch HM-LC-Bl1-FM
+  - buildSketch HM-LC-Dim1PWM-CV
+  - buildSketch HM-LC-SW1-BA-PCB
+  - buildSketch HM-LC-SWX-SM
+  - buildSketch HM-RC-4
+  - buildSketch HM-RC-8
+  - buildSketch HM-RC-P1
+  - buildSketch HM-SEC-MDIR
+  - buildSketch HM-SEC-RHS
+  - buildSketch HM-SEC-SD
+  - buildSketch HM-SEC-WDS
+  - buildSketch HM-SEN-MDIR-WM55
+  - buildSketch HM-WDS10-TH-O
+  - buildSketch HM-WDS40-TH-I
+  - buildSketch HM-WDS100-C6-O-2
+  - buildSketch HM-LC-DW-WM
+  - buildSketch HM-DW-WM
+  - export BOARD=$BOARD644P
+  - buildSketch HM-LC-Dim1TPBU-FM
+  - export BOARD=$BOARD328P
+  - export SKETCHPATH=$PWD/examples/custom
+  - buildSketch HB-GEN-SENS
+  - buildSketch HB-IBUT-8
+  - buildSketch HB-RC-3-ENC
+  - buildSketch HB-SW2-SENS
+  - buildSketch HB-UW-Sen-THPL
+  - buildSketch HB-LC-Bl1-Velux
+  - export SKETCHPATH=$HOME/Beispiel_AskSinPP/examples/RWE
+  - export BOARD=$BOARD644P
+  - buildSketch HB-LC-Dim1TPBU-FM_ISD2
+  - buildSketch HM-LC-Sw1PBU-FM_ISS2
+  - buildSketch HB-LC-Bl1PBU-FM_ISR2
+  - export BOARD=$BOARD328P
+  - buildSketch HM-LC-Sw1-Pl-DN-R1_PSS
+  - buildSketch HM-PB-2-FM_WSC2
+  - buildSketch HM-RC-8_BRC8
+  - buildSketch HM-SEC-SC_WDS
+  - export SKETCHPATH=$HOME/Beispiel_AskSinPP/examples
+  - buildSketch HB-LC-Bl1PBU-FM
+  - buildSketch HB-LC-SW12-FM
+  - buildSketch HB-LC-Sw1PBU-FM
+  - buildSketch HB-LC-Sw2PBU-FM
+  - buildSketch HM-CC-SCD
+  - buildSketch HM-Dis-TD-T
+#  - buildSketch HM-Dis-WM55
+  - export BOARD=$BOARD644P
+  - buildSketch HM-ES-PMSw1-Pl
+  - buildSketch HM-ES-PMSw1-Pl_GosundSP1
+  - export BOARD=$BOARD328P
+  - buildSketch HM-ES-TX-WM_CCU
+  - buildSketch HM-LC-SW1-FM_Shelly1
+  - buildSketch HM-LC-SW1-SM_SONOFF_BASIC
+  - buildSketch HM-LC-Sw1-Pl-CT-R1
+  - buildSketch HM-LC-Sw1-Pl-DN-R1
+  - buildSketch HM-LC-Sw1-Pl-DN-R1_OBI
+  - buildSketch HM-LC-Sw2-FM
+  - buildSketch HM-MOD-Re-8
+  - buildSketch HM-PB-2-FM
+  - buildSketch HM-PB-2-WM55
+  - buildSketch HM-PB-6-WM55
+  - buildSketch HM-PB-MP-WM
+  - buildSketch HM-PBI-4-FM
+  - buildSketch HM-RC-2-PBU-FM
+  - buildSketch HM-SCI-3-FM
+  - buildSketch HM-SWI-3-FM
+  - buildSketch HM-SEC-SC
+  - buildSketch HM-SEC-SCO
+  - buildSketch HM-Sec-TiS
+  - buildSketch HM-Sen-DB-PCB
+  - buildSketch HM-Sen-LI-O
+  - buildSketch HM-Sen-WA-OD
+  - buildSketch HM-WDS30-OT2-DS18B20
+  - buildSketch HM-WDS30-OT2-NTC
+  - buildSketch HM-WDS30-T-O-NTC
+  - buildSketch HM-WDS40-TH-I-BME280
+  - buildSketch HM-WDS40-TH-I-DHT22
+#  - buildSketch HM-WDS40-TH-I-DS18B20
+  - buildSketch HM-WDS40-TH-I-SHT10
+# more homebrew devices
+  - buildSketch HB-UNI-Sen-LEV-US
+  - buildSketch HB-UNI-Sen-DIST-US
+  - buildSketch HB-UNI-DMX-MASTER
+  - buildSketch HB-UNI-Sen-WEIGHT
+  - buildSketch HB-UNI-Sen-CAP-MOIST
+  - buildSketch HB-OU-MOT-SERVO
+  - buildSketch HB-UNI-Sen-RFID-RC
+  - export SKETCHPATH=$HOME/Beispiel_AskSinPP/examples/HB-UNI-SenAct-4-4
+  - buildSketch HB-UNI-SenAct-4-4-RC
+  - buildSketch HB-UNI-SenAct-4-4-SC
+  - export SKETCHPATH=$HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-PRESS
+  - buildSketch HB-UNI-Sen-PRESS
+  - buildSketch HB-UNI-Sen-PRESS-SC
+  - export SKETCHPATH=$HOME/Beispiel_AskSinPP/examples/HB-UNI-Sen-TEMP-MAX6675
+  - buildSketch HB-UNI-Sen-TEMP-MAX6675
+  - buildSketch HB-UNI-Sen-TEMP-MAX6675-DT
+  - export SKETCHPATH=$HOME/Beispiel_AskSinPP/examples
+  - export BOARD=$BOARD1284P
+  - buildSketch HB-Dis-EP-42BW
+  - buildSketch HB-RC-12-EP
+  - buildSketch HB-RC-4-Dis-TH
+  - export SKETCHPATH=$HOME/SmartHome
+  - export BOARD=$BOARD328P
+#  - buildSketch HB-SEN-LJet
+  - buildSketch HB-SCI-3-FM
+# disable AES support
+  - echo "" >$HOME/arduino-ide/hardware/arduino/avr/platform.local.txt
+  - sed -i "s/pro.menu.cpu.8MHzatmega168.upload.maximum_size=14336/pro.menu.cpu.8MHzatmega168.upload.maximum_size=16384/g" $HOME/arduino-ide/hardware/arduino/avr/boards.txt
+  - export SKETCHPATH=$HOME/Beispiel_AskSinPP/examples
+  - export BOARD=$BOARD168P
+  - buildSketch HM-SEC-RHS-ATmega168
+  - export BOARD=$BOARD328P
+  - buildSketch HB-OU-MP3-LED
+  - export SKETCHPATH=$HOME/SmartHome
+#  - buildSketch HB-UNI-Sensor1
+notifications:
+  email:
+    recipients:
+      - jp112sdl@icloud.com

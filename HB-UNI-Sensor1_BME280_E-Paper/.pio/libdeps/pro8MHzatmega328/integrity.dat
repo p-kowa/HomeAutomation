@@ -1,0 +1,6 @@
+MultiChannelDevice
+AskSinPP
+Low-Power
+EnableInterrupt
+Register
+finitespace/BME280@^3.0.0
