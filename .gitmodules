@@ -1,0 +1,3 @@
+[submodule "HB-UNI-Sensor1_BME280_E-Paper"]
+	path = HB-UNI-Sensor1_BME280_E-Paper
+	url = https://github.com/p-kowa/HB-UNI-Sensor1_BME280_E-Paper.git
