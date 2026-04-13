@@ -1,3 +1,9 @@
 [submodule "HB-UNI-Sensor1_BME280_E-Paper"]
 	path = HB-UNI-Sensor1_BME280_E-Paper
 	url = https://github.com/p-kowa/HB-UNI-Sensor1_BME280_E-Paper.git
+[submodule "HB-UNI-Sensor1_AHT11_GL5528"]
+	path = HB-UNI-Sensor1_AHT11_GL5528
+	url = https://github.com/p-kowa/HB-UNI-Sensor1_AHT11_GL5528.git
+[submodule "CCU_RM_AddOn"]
+	path = CCU_RM_AddOn
+	url = https://github.com/p-kowa/CCU_RM_AddOn.git
